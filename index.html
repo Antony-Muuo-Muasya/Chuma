@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CHUMA | Official Site</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              chuma: {
+                black: '#050505',
+                gold: '#D4AF37',
+                orange: '#E85D04',
+                earth: '#3E2723'
+              }
+            },
+            fontFamily: {
+              sans: ['Outfit', 'sans-serif'],
+              display: ['Syne', 'sans-serif'],
+            },
+            animation: {
+              'spin-slow': 'spin 8s linear infinite',
+              'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            },
+            keyframes: {
+                marquee: {
+                    '0%': { transform: 'translateX(0%)' },
+                    '100%': { transform: 'translateX(-50%)' },
+                },
+                'marquee-reverse': {
+                     '0%': { transform: 'translateX(-50%)' },
+                    '100%': { transform: 'translateX(0%)' },
+                }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body { margin: 0; background-color: #050505; color: white; overflow-x: hidden; }
+      
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: #050505; }
+      ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
+
+      /* Typewriter Cursor */
+      .typing-cursor::after {
+        content: '|';
+        animation: blink 1s step-start infinite;
+      }
+      @keyframes blink { 50% { opacity: 0; } }
+
+      /* 3D Utilities */
+      .perspective-1000 {
+        perspective: 1000px;
+      }
+      .preserve-3d {
+        transform-style: preserve-3d;
+      }
+      .backface-hidden {
+        backface-visibility: hidden;
+      }
+      /* 3D Rotation Classes */
+      .rotate-y-180 {
+        transform: rotateY(180deg);
+      }
+      .rotate-y-12 {
+        transform: rotateY(12deg);
+      }
+      .transform-style-3d {
+        transform-style: preserve-3d;
+      }
+      
+      /* RGB Glitch Text Static */
+      .text-glitch {
+        text-shadow: 
+          2px 0px 1px rgba(255,0,0,0.5),
+          -2px 0px 1px rgba(0,0,255,0.5);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@react-three/fiber": "https://aistudiocdn.com/@react-three/fiber@^9.4.0",
+    "@react-three/drei": "https://aistudiocdn.com/@react-three/drei@^10.7.7",
+    "three": "https://aistudiocdn.com/three@^0.181.2",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "recharts": "https://aistudiocdn.com/recharts@^3.4.1",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
+    "framer-motion": "https://aistudiocdn.com/framer-motion@^11.3.8"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
