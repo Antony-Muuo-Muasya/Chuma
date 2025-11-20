@@ -33,6 +33,21 @@ db.users.push({
   joinedAt: new Date().toISOString()
 });
 
+// --- DATA PERSISTENCE SIMULATION ---
+// Restore session user to memory DB if they exist in localStorage (Simulating persistence across refreshes)
+try {
+    const stored = localStorage.getItem('chuma_user');
+    if (stored) {
+        const u = JSON.parse(stored);
+        // Avoid duplicating admin if they are the stored user
+        if (!db.users.some(user => user.uid === u.uid)) {
+             db.users.push(u);
+        }
+    }
+} catch (e) {
+    console.error("Failed to restore user session", e);
+}
+
 export const authService = {
   login: async (email: string): Promise<UserProfile> => {
     return new Promise((resolve, reject) => {
@@ -167,6 +182,22 @@ export const dbService = {
   },
   getNotifications: async (): Promise<Notification[]> => Promise.resolve(db.notifications),
   
+  // Calculate real-time stats for dashboard cards
+  getDashboardStats: async () => {
+    if (currentUser?.role !== 'admin') throw new Error("Unauthorized");
+    
+    const totalUsers = db.users.length;
+    const totalStreams = db.music.reduce((acc, curr) => acc + curr.plays, 0);
+    // Base mock revenue + simulated calculation
+    const totalRevenue = 45230 + (totalUsers * 15); 
+    
+    return Promise.resolve({
+        totalUsers,
+        totalStreams,
+        totalRevenue
+    });
+  },
+
   // --- Commerce ---
   addToCart: async (productId: string) => {
     if (!currentUser) throw new Error("Must be logged in");

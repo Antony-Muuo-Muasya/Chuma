@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, User, ShoppingBag, LogOut, Instagram, Twitter, Youtube } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import { Menu, X, User, ShoppingBag, LogOut, Instagram, Twitter, Youtube, Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
   const navLinks = [
@@ -82,6 +84,15 @@ const Navbar: React.FC = () => {
                 <a href="#" className="text-gray-400 hover:text-chuma-gold transition-colors"><Youtube size={18} /></a>
              </div>
 
+             {/* Theme Toggle */}
+             <button 
+                onClick={toggleTheme}
+                className="text-gray-400 hover:text-chuma-gold transition-colors"
+                title="Toggle Theme"
+             >
+                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+             </button>
+
              {user ? (
                <div className="flex items-center gap-4">
                  <span className="text-xs text-gray-400 uppercase font-mono">{user.name}</span>
@@ -129,6 +140,13 @@ const Navbar: React.FC = () => {
                 </Link>
               )}
              <div className="border-t border-gray-800 mt-4 pt-4">
+                <button 
+                    onClick={() => { toggleTheme(); setIsOpen(false); }}
+                    className="w-full text-left flex items-center gap-3 px-3 py-2 text-base font-medium text-gray-300 hover:text-white"
+                >
+                    {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                    {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                </button>
                 {user ? (
                   <button onClick={logout} className="block w-full text-left px-3 py-2 text-base font-medium text-gray-300">Logout</button>
                 ) : (

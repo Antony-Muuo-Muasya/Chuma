@@ -10,14 +10,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
               chuma: {
-                black: '#050505',
-                gold: '#D4AF37',
-                orange: '#E85D04',
+                black: 'var(--bg-color)',
+                gold: 'var(--accent-color)',
+                orange: 'var(--secondary-color)',
                 earth: '#3E2723'
+              },
+              theme: {
+                bg: 'var(--bg-color)',
+                text: 'var(--text-color)',
+                accent: 'var(--accent-color)',
+                secondary: 'var(--secondary-color)',
+                panel: 'var(--panel-bg)',
+                border: 'var(--border-color)'
               }
             },
             fontFamily: {
@@ -43,13 +52,33 @@
       }
     </script>
     <style>
-      body { margin: 0; background-color: #050505; color: white; overflow-x: hidden; }
+      :root {
+        /* Default Dark Theme (CHUMA Classic) */
+        --bg-color: #050505;
+        --text-color: #ffffff;
+        --accent-color: #D4AF37;
+        --secondary-color: #E85D04;
+        --panel-bg: rgba(255, 255, 255, 0.05);
+        --border-color: rgba(255, 255, 255, 0.1);
+      }
+
+      [data-theme='light'] {
+        /* Light Theme (Modern/Silver) */
+        --bg-color: #f0f0f0;
+        --text-color: #1a1a1a;
+        --accent-color: #2563eb; /* Electric Blue */
+        --secondary-color: #9333ea; /* Purple */
+        --panel-bg: rgba(255, 255, 255, 0.8);
+        --border-color: rgba(0, 0, 0, 0.1);
+      }
+
+      body { margin: 0; background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; transition: background-color 0.5s ease, color 0.5s ease; }
       
       /* Custom Scrollbar */
       ::-webkit-scrollbar { width: 6px; }
-      ::-webkit-scrollbar-track { background: #050505; }
+      ::-webkit-scrollbar-track { background: var(--bg-color); }
       ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-      ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
+      ::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
 
       /* Typewriter Cursor */
       .typing-cursor::after {
@@ -98,7 +127,9 @@
     "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
     "recharts": "https://aistudiocdn.com/recharts@^3.4.1",
     "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
-    "framer-motion": "https://aistudiocdn.com/framer-motion@^11.3.8"
+    "framer-motion": "https://aistudiocdn.com/framer-motion@^11.3.8",
+    "@splinetool/react-spline": "https://aistudiocdn.com/@splinetool/react-spline@4.0.0", 
+    "@splinetool/runtime": "https://aistudiocdn.com/@splinetool/runtime@1.0.0"
   }
 }
 </script>

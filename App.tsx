@@ -2,7 +2,9 @@ import React, { Suspense, useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Background3D from './components/Background3D';
+import SplineScene from './components/SplineScene';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { Mail } from 'lucide-react';
 
 // Lazy load pages
@@ -33,7 +35,7 @@ const ScrollProgress = () => {
 // Newsletter Floating Button
 const NewsletterFAB = () => (
     <button 
-        className="fixed bottom-20 right-6 md:bottom-6 md:right-6 z-30 bg-chuma-gold text-black p-4 rounded-full shadow-lg shadow-chuma-gold/20 hover:scale-110 transition-transform group"
+        className="fixed bottom-20 right-6 md:bottom-6 md:right-6 z-30 bg-theme-accent text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform group"
         onClick={() => alert("Joined the tribe!")}
     >
         <Mail size={24} />
@@ -54,34 +56,48 @@ const SplashScreen = () => (
     </div>
 );
 
+const AppContent: React.FC = () => {
+    const { theme } = useTheme();
+    
+    return (
+        <>
+            <ScrollProgress />
+            
+            {/* Conditional Background: R3F for Dark Mode, Spline for Light Mode */}
+            {theme === 'dark' ? <Background3D /> : <SplineScene />}
+            
+            <Router>
+                <div className="relative z-10 text-theme-text perspective-1000 transition-colors duration-500">
+                    <Navbar />
+                    <Suspense fallback={<SplashScreen />}>
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/music" element={<Music />} />
+                            <Route path="/gallery" element={<Gallery />} />
+                            <Route path="/store" element={<Store />} />
+                            <Route path="/admin" element={<Admin />} />
+                            <Route path="/login" element={<Login />} />
+                        </Routes>
+                    </Suspense>
+                    
+                    <NewsletterFAB />
+                    
+                    <footer className="py-12 border-t border-theme-border text-center text-gray-500 text-sm relative z-20 bg-theme-bg/80 backdrop-blur-lg mb-16 md:mb-0">
+                        <p>&copy; {new Date().getFullYear()} CHUMA MUSIC. ALL RIGHTS RESERVED.</p>
+                        <p className="mt-2 text-xs">DESIGNED BY GEMINI 3 PRO</p>
+                    </footer>
+                </div>
+            </Router>
+        </>
+    );
+}
+
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <ScrollProgress />
-      <Background3D />
-      
-      <Router>
-        <div className="relative z-10 text-white perspective-1000">
-          <Navbar />
-          <Suspense fallback={<SplashScreen />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/music" element={<Music />} />
-              <Route path="/gallery" element={<Gallery />} />
-              <Route path="/store" element={<Store />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/login" element={<Login />} />
-            </Routes>
-          </Suspense>
-          
-          <NewsletterFAB />
-          
-          <footer className="py-12 border-t border-white/5 text-center text-gray-500 text-sm relative z-20 bg-black/80 backdrop-blur-lg mb-16 md:mb-0">
-            <p>&copy; {new Date().getFullYear()} CHUMA MUSIC. ALL RIGHTS RESERVED.</p>
-            <p className="mt-2 text-xs">DESIGNED BY GEMINI 3 PRO</p>
-          </footer>
-        </div>
-      </Router>
+      <ThemeProvider>
+          <AppContent />
+      </ThemeProvider>
     </AuthProvider>
   );
 };

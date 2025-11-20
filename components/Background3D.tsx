@@ -1,182 +1,192 @@
-import React, { useRef, useMemo, useState } from 'react';
+import React, { useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Points, PointMaterial, Float, Icosahedron, Stars, Trail, TorusKnot, Ring } from '@react-three/drei';
+import { 
+  Stars, Trail, MeshDistortMaterial, Text, Float
+} from '@react-three/drei';
 import * as THREE from 'three';
+import { useTheme } from '../context/ThemeContext';
 
-const ParticleField = () => {
-  const ref = useRef<THREE.Points>(null!);
-  
-  const sphere = useMemo(() => {
-    const geometry = new THREE.BufferGeometry();
-    const count = 3000;
-    const positions = new Float32Array(count * 3);
-    
-    for (let i = 0; i < count; i++) {
-      const theta = THREE.MathUtils.randFloatSpread(360); 
-      const phi = THREE.MathUtils.randFloatSpread(360); 
-      
-      const x = 20 * Math.sin(theta) * Math.cos(phi);
-      const y = 20 * Math.sin(theta) * Math.sin(phi) * 0.6; 
-      const z = 20 * Math.cos(theta);
-      
-      positions[i * 3] = x;
-      positions[i * 3 + 1] = y;
-      positions[i * 3 + 2] = z;
-    }
-    
-    return positions;
-  }, []);
+// --- EFFECT 1: Warp Core (Theme Aware) ---
+const WarpCore = ({ primaryColor }: { primaryColor: string }) => {
+  return (
+    <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+      <mesh position={[0, 0, 0]} scale={2.5}>
+        <sphereGeometry args={[1, 64, 64]} />
+        <MeshDistortMaterial 
+          color={primaryColor} 
+          envMapIntensity={1} 
+          clearcoat={1} 
+          clearcoatRoughness={0} 
+          metalness={0.1} 
+          distort={0.4} 
+          speed={2} 
+        />
+      </mesh>
+    </Float>
+  );
+};
 
+// --- EFFECT 2: Glassmorphism Rings (Theme Aware) ---
+const GlassRings = ({ accentColor }: { accentColor: string }) => {
+  const group = useRef<THREE.Group>(null!);
   useFrame((state) => {
-    if (ref.current) {
-      // Constant rotation
-      ref.current.rotation.x += 0.0005;
-      ref.current.rotation.y += 0.001;
-
-      // Mouse interaction (Waves)
-      const { x, y } = state.pointer;
-      ref.current.rotation.x += y * 0.005;
-      ref.current.rotation.y += x * 0.005;
-
-      // Animation 1: Rhythmic Pulse (Simulating Bass)
-      const beat = Math.sin(state.clock.elapsedTime * 4) * 0.1 + 1; // Fast beat
-      ref.current.scale.setScalar(beat);
+    if (group.current) {
+      group.current.rotation.x = Math.sin(state.clock.getElapsedTime() * 0.2) * 0.5;
+      group.current.rotation.y += 0.005;
     }
   });
 
   return (
-    <group rotation={[0, 0, Math.PI / 4]}>
-      <Points ref={ref} positions={sphere} stride={3} frustumCulled={false}>
-        <PointMaterial
-          transparent
-          color="#E85D04"
-          size={0.05}
-          sizeAttenuation={true}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-          opacity={0.8}
+    <group ref={group} rotation={[Math.PI / 3, 0, 0]}>
+      <mesh>
+        <torusGeometry args={[4.5, 0.1, 16, 100]} />
+        <meshPhysicalMaterial 
+          color={accentColor} 
+          transmission={0.6} 
+          opacity={0.5} 
+          metalness={0} 
+          roughness={0} 
+          ior={1.5} 
+          thickness={2} 
+          transparent 
+          side={THREE.DoubleSide}
         />
-      </Points>
+      </mesh>
     </group>
   );
 };
 
-// Animation 2: Afro-Totem Artifact
-const AfroTotem = () => {
-    const ref = useRef<THREE.Group>(null!);
+// --- EFFECT 3: Interactive Spotlight ---
+const MouseLight = ({ color }: { color: string }) => {
+  const light = useRef<THREE.PointLight>(null!);
+  const { viewport } = useThree();
+  
+  useFrame((state) => {
+    const { x, y } = state.pointer;
+    light.current.position.x = (x * viewport.width) / 2;
+    light.current.position.y = (y * viewport.height) / 2;
+  });
+
+  return <pointLight ref={light} position={[0, 0, 5]} intensity={2} color={color} distance={10} decay={2} />;
+};
+
+// --- EFFECT 4: Stardust Field ---
+const StarField = () => {
+  const ref = useRef<THREE.Points>(null!);
+  useFrame(() => {
+    if (ref.current) ref.current.rotation.y -= 0.0002;
+  });
+  return (
+    <group rotation={[0, 0, Math.PI / 4]}>
+      <Stars radius={50} depth={50} count={3000} factor={4} saturation={0} fade speed={1} />
+    </group>
+  );
+};
+
+// --- EFFECT 5: Rhythmic Grid ---
+const RhythmicGrid = ({ color }: { color: string }) => {
+    const mesh = useRef<THREE.Mesh>(null!);
     useFrame((state) => {
-        if (ref.current) {
-            ref.current.rotation.y = state.clock.elapsedTime * 0.2;
-            ref.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
-        }
+        if (mesh.current) mesh.current.position.y = -4 + Math.sin(state.clock.elapsedTime) * 0.2;
     });
 
     return (
-        <group ref={ref} position={[8, -4, -10]}>
-            <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-                <TorusKnot args={[1.5, 0.2, 100, 16]} material-wireframe>
-                    <meshStandardMaterial color="#D4AF37" wireframe opacity={0.3} transparent />
-                </TorusKnot>
-                <Ring args={[2.5, 2.6, 32]} rotation={[Math.PI / 2, 0, 0]}>
-                     <meshBasicMaterial color="#E85D04" side={THREE.DoubleSide} transparent opacity={0.4} />
-                </Ring>
-                <Ring args={[3.5, 3.6, 32]} rotation={[Math.PI / 2.2, 0, 0]}>
-                     <meshBasicMaterial color="#E85D04" side={THREE.DoubleSide} transparent opacity={0.2} />
-                </Ring>
-            </Float>
+        <mesh ref={mesh} rotation={[-Math.PI / 2, 0, 0]} position={[0, -4, 0]}>
+            <planeGeometry args={[40, 40, 40, 40]} />
+            <meshBasicMaterial color={color} wireframe transparent opacity={0.15} />
+        </mesh>
+    )
+}
+
+// --- EFFECT 6: Floating Crystals ---
+const FloatingCrystals = ({ color }: { color: string }) => {
+    return (
+        <group>
+            {Array.from({ length: 8 }).map((_, i) => {
+                const x = (Math.random() - 0.5) * 20;
+                const y = (Math.random() - 0.5) * 10;
+                const z = (Math.random() - 0.5) * 10 - 5;
+                return (
+                    <Float key={i} speed={Math.random() * 2 + 1}>
+                        <mesh position={[x, y, z]} scale={Math.random() * 0.5 + 0.2}>
+                            <icosahedronGeometry args={[1, 0]} />
+                            <meshStandardMaterial color={color} roughness={0.2} metalness={1} />
+                        </mesh>
+                    </Float>
+                )
+            })}
         </group>
     )
 }
 
-// Animation 3: Mouse Trail
-const MouseTrail = () => {
+// --- EFFECT 7: Cursor Trail ---
+const CursorTrail = ({ color }: { color: string }) => {
     const { viewport } = useThree();
     const ref = useRef<THREE.Mesh>(null!);
-    
     useFrame((state) => {
         const { x, y } = state.pointer;
-        // Convert screen space to 3D space roughly
         ref.current.position.x = (x * viewport.width) / 2;
         ref.current.position.y = (y * viewport.height) / 2;
     });
-
     return (
-        <Trail width={2} color="#D4AF37" length={6} decay={1} attenuation={(t) => t * t}>
-            <mesh ref={ref} position={[0, 0, 5]}>
-                <sphereGeometry args={[0.1, 16, 16]} />
-                <meshBasicMaterial color="#E85D04" visible={false} />
+        <Trail width={3} color={color} length={5} decay={2}>
+            <mesh ref={ref} position={[0, 0, 4]}>
+                <sphereGeometry args={[0.05, 16, 16]} />
+                <meshBasicMaterial color={color} visible={false} />
             </mesh>
         </Trail>
     )
 }
 
-// Animation 10: Particle Burst (Click Interaction)
-const ClickBurst = () => {
-    const [burst, setBurst] = useState(false);
-    const groupRef = useRef<THREE.Group>(null!);
+// --- EFFECT 8: Kinetic Text ---
+const FloatingLabels = ({ color }: { color: string }) => (
+    <group>
+        <Float speed={1.5} position={[-4, 3, -2]}>
+                <Text color={color} fontSize={1} font="https://fonts.gstatic.com/s/raleway/v14/1Ptrg8zYS_SKggPNwK4vaqI.woff">RHYTHM</Text>
+        </Float>
+            <Float speed={2} position={[4, -3, -2]}>
+                <Text color={color} fontSize={1.5} font="https://fonts.gstatic.com/s/raleway/v14/1Ptrg8zYS_SKggPNwK4vaqI.woff">SOUL</Text>
+        </Float>
+    </group>
+);
 
-    // Logic to expand a ring on click
-    useFrame((state) => {
-        if (groupRef.current) {
-            if (burst) {
-                groupRef.current.scale.addScalar(0.5);
-                (groupRef.current.children[0].material as THREE.Material).opacity -= 0.02;
-                if (groupRef.current.scale.x > 20) {
-                    setBurst(false);
-                    groupRef.current.scale.setScalar(0);
-                    (groupRef.current.children[0].material as THREE.Material).opacity = 1;
-                }
-            }
-        }
-    });
-    
-    React.useEffect(() => {
-        const handleClick = () => {
-            setBurst(true);
-            if (groupRef.current) {
-                groupRef.current.scale.setScalar(1);
-                (groupRef.current.children[0].material as THREE.Material).opacity = 1;
-            }
-        };
-        window.addEventListener('click', handleClick);
-        return () => window.removeEventListener('click', handleClick);
-    }, []);
-
-    return (
-        <group ref={groupRef} scale={[0,0,0]}>
-             <mesh rotation={[Math.PI / 2, 0, 0]}>
-                <ringGeometry args={[4, 4.2, 64]} />
-                <meshBasicMaterial color="#fff" transparent side={THREE.DoubleSide} />
-             </mesh>
-        </group>
-    )
-}
-
+// --- EFFECT 10: Camera Rig ---
 const CameraRig = () => {
   useFrame((state) => {
-    state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, state.pointer.x * 0.5, 0.05);
-    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, state.pointer.y * 0.5, 0.05);
+    state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, state.pointer.x * 1.5, 0.05);
+    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, state.pointer.y * 1.5, 0.05);
     state.camera.lookAt(0, 0, 0);
   });
   return null;
 };
 
 const Background3D: React.FC = () => {
+  const { theme } = useTheme();
+
+  // Define palette based on theme
+  const primary = theme === 'dark' ? '#D4AF37' : '#2563eb'; // Gold vs Blue
+  const secondary = theme === 'dark' ? '#E85D04' : '#9333ea'; // Orange vs Purple
+  const bg = theme === 'dark' ? '#050505' : '#f0f0f0';
+
   return (
-    <div className="fixed inset-0 z-[-1] bg-chuma-black">
-      <Canvas camera={{ position: [0, 0, 14], fov: 50 }}>
-        <fog attach="fog" args={['#050505', 5, 30]} />
-        <ambientLight intensity={0.2} />
-        <pointLight position={[10, 10, 10]} intensity={0.5} color="#D4AF37" />
-        
-        <Stars radius={100} depth={50} count={1000} factor={4} saturation={0} fade speed={1} />
-        <ParticleField />
-        <AfroTotem />
-        <MouseTrail />
-        <ClickBurst />
+    <div className="fixed inset-0 z-[-1]" style={{ backgroundColor: bg }}>
+      <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[10, 10, 5]} intensity={1} color={primary} />
+        <fog attach="fog" args={[bg, 5, 25]} />
+
+        <WarpCore primaryColor={primary} />
+        <GlassRings accentColor={secondary} />
+        <MouseLight color={primary} />
+        <StarField />
+        <RhythmicGrid color={secondary} />
+        <FloatingCrystals color="#333" />
+        <CursorTrail color={primary} />
+        <FloatingLabels color={theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} />
         <CameraRig />
       </Canvas>
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-chuma-black pointer-events-none" />
+      {/* Theme specific overlay */}
+      <div className={`absolute inset-0 pointer-events-none ${theme === 'dark' ? 'bg-radial-gradient from-transparent to-black opacity-80' : 'bg-white/30'}`} />
     </div>
   );
 };
